@@ -47,9 +47,15 @@
 
     // Generate subsequent guesses, ensuring green blocks remain consistent
     for (let i = 1; i < maxGuesses; i++) {
-      let newRow = currentRow.map((block, index) => {
-        return block === '🟩' ? '🟩' : blocks[Math.floor(Math.random() * 3)];
-      });
+      let newRow;
+      
+      do {
+        // Generate a new row based on currentRow, keeping green blocks consistent
+        newRow = currentRow.map((block, index) => {
+          return block === '🟩' ? '🟩' : blocks[Math.floor(Math.random() * 3)];
+        });
+      } while (isFourGreenOneYellow(newRow) || hasMoreWhiteThanYellow(newRow, currentRow)); // Regenerate if 4 green and 1 yellow
+
 
       rows.push(newRow);
       currentRow = newRow;
@@ -84,6 +90,23 @@
       console.error("Failed to copy text: ", err);
     });
   }
+
+  // Helper function to check for 4 green and 1 yellow blocks
+  function isFourGreenOneYellow(row) {
+      const greenCount = row.filter(block => block === '🟩').length;
+      const yellowCount = row.filter(block => block === '🟨').length;
+      return greenCount === 4 && yellowCount === 1;
+  }
+
+  function hasMoreWhiteThanYellow(newRow, currentRow) {
+    const currentWhiteCount = currentRow.filter(block => block === '⬜').length;
+    const currentYellowCount = currentRow.filter(block => block === '🟨').length;
+
+    const newWhiteCount = newRow.filter(block => block === '⬜').length;
+    const newYellowCount = newRow.filter(block => block === '🟨').length;
+
+    return (newWhiteCount > newYellowCount && newWhiteCount > currentYellowCount);
+}
 </script>
 </body>
 </html>
