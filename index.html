@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Wordle</title>
+<style>
+  .game-container {
+    font-family: Arial, sans-serif;
+    max-width: 300px;
+    margin: 20px auto;
+    text-align: center;
+  }
+  .block-row {
+    font-size: 2em;
+    margin: 5px 0;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    margin: 10px 5px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>It's Wordle</h1>
+  <div id="gameOutput"></div>
+  <button onclick="generateWordle()">Generate Wordle</button>
+  <button onclick="copyResults()">Copy Results</button>
+</div>
+
+<script>
+  function generateWordle() {
+    const gameOutput = document.getElementById('gameOutput');
+    gameOutput.innerHTML = ''; // Clear previous result
+
+    const maxGuesses = 6;
+    const rows = [];
+    const blocks = ['⬜', '🟨', '🟩'];
+    let currentRow = Array(5).fill('⬜');
+
+    // Generate initial random guess
+    currentRow = currentRow.map(() => blocks[Math.floor(Math.random() * 3)]);
+    rows.push(currentRow);
+
+    // Generate subsequent guesses, ensuring green blocks remain consistent
+    for (let i = 1; i < maxGuesses; i++) {
+      let newRow = currentRow.map((block, index) => {
+        return block === '🟩' ? '🟩' : blocks[Math.floor(Math.random() * 3)];
+      });
+
+      rows.push(newRow);
+      currentRow = newRow;
+
+      // Stop if all blocks in the row are green
+      if (newRow.every(block => block === '🟩')) {
+        break;
+      }
+    }
+
+    // Determine if all blocks are green in the final row
+    const isSolved = rows[rows.length - 1].every(block => block === '🟩');
+    const guessesCount = isSolved ? rows.length : "X";
+
+    // Display the results
+    const wordleNum = Math.floor(Math.random() * 1000) + 1;
+    const wordleHeader = `Wordle ${wordleNum} ${guessesCount}/6*`;
+    let outputText = `<p>${wordleHeader}</p>`;
+    rows.forEach(row => {
+      const rowString = row.join('');
+      outputText += `<div class="block-row">${rowString}</div>`;
+    });
+    gameOutput.innerHTML = outputText;
+  }
+
+  function copyResults() {
+    const gameOutput = document.getElementById('gameOutput');
+    const textToCopy = gameOutput.innerText;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      //alert("Results copied to clipboard!");
+    }).catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
+  }
+</script>
+</body>
+</html>
