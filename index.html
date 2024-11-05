@@ -20,7 +20,15 @@
     font-size: 1em;
     margin: 10px 5px;
     cursor: pointer;
+    /* transition-duration: 0.4s;
+    border-radius: 5%;
+    border: 2px solid #f44336;
+    background-color: white; */
   }
+  /* button:hover{
+    background-color: #f44336;
+    color: white;
+  } */
 </style>
 </head>
 <body>
@@ -37,6 +45,7 @@
   function generateWordle() {
     const gameOutput = document.getElementById('gameOutput');
     gameOutput.innerHTML = ''; // Clear previous result
+    console.clear();
 
     const maxGuesses = 6;
     const rows = [];
@@ -50,17 +59,24 @@
     // Generate subsequent guesses, ensuring green blocks remain consistent
     for (let i = 1; i < maxGuesses; i++) {
       let newRow;
-      
-      do {
+
         // Generate a new row based on currentRow, keeping green blocks consistent
         newRow = currentRow.map((block, index) => {
           return block === '🟩' ? '🟩' : blocks[Math.floor(Math.random() * 3)];
         });
-      } while (isFourGreenOneYellow(newRow) || hasMoreWhiteThanYellow(newRow, currentRow)); // Regenerate if 4 green and 1 yellow
+        
+       while (isFourGreenOneYellow(newRow) || hasMoreWhiteThanYellow(newRow, currentRow, maxGuesses)){
+        newRow = currentRow.map((block, index) => {
+          return block === '🟩' ? '🟩' : blocks[Math.floor(Math.random() * 3)];
+        });
+        
+       } // Regenerate
 
 
       rows.push(newRow);
+      console.log(`PUSHED ROW: ${newRow.join('')}`);
       currentRow = newRow;
+      
 
       // Stop if all blocks in the row are green
       if (newRow.every(block => block === '🟩')) {
@@ -93,21 +109,21 @@
     });
   }
 
-  // Helper function to check for 4 green and 1 yellow blocks
+  // check for 4 green and 1 yellow blocks (impossible)
   function isFourGreenOneYellow(row) {
       const greenCount = row.filter(block => block === '🟩').length;
       const yellowCount = row.filter(block => block === '🟨').length;
       return greenCount === 4 && yellowCount === 1;
   }
 
-  function hasMoreWhiteThanYellow(newRow, currentRow) {
-    const currentWhiteCount = currentRow.filter(block => block === '⬜').length;
+  function hasMoreWhiteThanYellow(newRow, currentRow, maxGuesses) {
     const currentYellowCount = currentRow.filter(block => block === '🟨').length;
+    const currentGreenCount = currentRow.filter(block => block === '🟩').length;
 
-    const newWhiteCount = newRow.filter(block => block === '⬜').length;
     const newYellowCount = newRow.filter(block => block === '🟨').length;
+    const newGreenCount = newRow.filter(block => block === '🟩').length;
 
-    return (newWhiteCount > newYellowCount && newWhiteCount > currentYellowCount);
+    return ((newYellowCount + newGreenCount) < (currentYellowCount + currentGreenCount));
 }
 </script>
 </body>
